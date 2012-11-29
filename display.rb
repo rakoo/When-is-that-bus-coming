@@ -6,14 +6,16 @@ ROUTES = []
 def display_schedule
   max_length = 0
   STATIONS.each do |station|
-    max_length = station.size if station.size > max_length
+    station_name = station.split.drop(2).join(" ") # drop lat and lon
+    max_length = station_name.size if station_name.size > max_length
   end
 
   ROUTES.each do |route|
     schedule = route.split
     puts "ERROR" if schedule.size != STATIONS.size
     STATIONS.zip(schedule).each do |tuple|
-      printf "%-#{max_length}s\t%s\n", tuple.first, tuple.last
+      station_name = tuple.first.split.drop(2).join(" ") # drop lat and lon
+      printf "%-#{max_length}s\t%s\n", station_name, tuple.last
     end
   end
 end
