@@ -1,18 +1,28 @@
 require 'sinatra/base'
 
+require 'redis'
+
+REDIS = Redis.new
 STATIONS = []
 
-File.open("100.schedule").each do |line|
-  if line == "\n"
-    break
+def load_stations
+  STATIONS.clear
+  REDIS.keys("STATION:*").each do |station|
+    station_hash = REDIS.hgetall station
+    STATIONS << {:lat => station_hash["lat"].to_f, :lon => station_hash["lon"].to_f, :name => station.gsub(/STATIONS:\*/, "")}
   end
-  lat, lon, *name = line.strip.split
-  STATIONS << {:lat => lat.to_f, :lon => lon.to_f, :name => name.join(" ")}
+  puts "Loaded #{STATIONS.size} stations"
 end
+
+load_stations
 
 class WTBC < Sinatra::Base
   get '/' do
     'Hello world!'
+  end
+
+  get '/reload' do
+    load_stations
   end
 
   get '/stations' do
