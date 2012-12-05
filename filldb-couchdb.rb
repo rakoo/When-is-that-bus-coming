@@ -1,35 +1,21 @@
 #!/usr/bin/env ruby -KU
 
 require 'couchrest'
+require 'trollop'
 
-COUCH = CouchRest.database "http://localhost:5984/wtbc"
+COUCH = CouchRest.database ARGV[0]
 STATIONS = []
 SCHEDULES = []
 
-FILENAME = "100.schedule"
+FILENAME = ARGV[1]
+abort("No data file; quitting.") unless FILENAME
 
-def upload_to_couch
-  line_number = FILENAME.split(".").first
-  stations_docs = STATIONS.map do |station|
-    station.merge({
-      :type => :station,
-      :lines => [line_number]
-    })
-  end
-  COUCH.bulk_save(stations_docs, {:all_or_nothing => true})
-
-  schedule_doc = {
-    :type => :schedule,
-    :line_number => line_number,
-    :stations => STATIONS.map {|station| station[:name]},
-    :schedules => SCHEDULES
-  }
-  COUCH.save_doc schedule_doc
-     
-end
 
 state = :stations
 
+# Fill the arrays ...
+COUCH.delete!
+COUCH.create!
 File.open(FILENAME).each do |line|
   if line == "\n"
     state = :schedule
@@ -45,6 +31,23 @@ File.open(FILENAME).each do |line|
     SCHEDULES << line.split
   end
 
-  upload_to_couch
 end
+
+# ... and feed them to couch
+line = File.basename(FILENAME).split(".").first
+stations_docs = STATIONS.map do |station|
+  station.merge({
+    :type => :station,
+    :lines => [line]
+  })
+end
+COUCH.bulk_save(stations_docs, {:all_or_nothing => true})
+
+schedule_doc = {
+  :type => :schedule,
+  :line => line,
+  :stations => STATIONS.map {|station| station[:name]},
+  :schedules => SCHEDULES
+}
+COUCH.save_doc schedule_doc
 
