@@ -1,19 +1,25 @@
 require 'sinatra/base'
 
-require 'redis'
+require 'couchrest'
+require 'trollop'
+require 'json'
 
-REDIS = Redis.new
 STATIONS = []
 
 def load_stations
   STATIONS.clear
-  REDIS.keys("STATION:*").each do |station|
-    station_hash = REDIS.hgetall station
-    STATIONS << {:lat => station_hash["lat"].to_f, :lon => station_hash["lon"].to_f, :name => station.gsub(/STATIONS:\*/, "")}
+  COUCH.view('extract/stations')["rows"].each do |row|
+    STATIONS << {:name => row["key"], :lat => row["value"]["lat"].to_f, :lon => row["value"]["lon"].to_f}
   end
-  puts "Loaded #{STATIONS.size} stations"
 end
 
+
+
+opts = Trollop::options do
+  opt :url, "URL of Couchdb database", :required => true, :type => :string
+end
+
+COUCH = CouchRest.database opts[:url]
 load_stations
 
 class WTBC < Sinatra::Base
@@ -42,6 +48,17 @@ class WTBC < Sinatra::Base
     return 500 if lat < -90 or lat > 90 or lon < -180 or lon > 180
 
     closest_station lat, lon
+  end
+
+  get '/nextbus' do
+    station_name = params[:stationName]
+    resultsByLine = {}
+    COUCH.view('extract/schedulesByStation', {:key => station_name})["rows"].each do |row|
+      resultsByLine[row["value"]["line"]] ||= []
+      resultsByLine[row["value"]["line"]] << {:terminus => row["value"]["terminus"], :schedule => row["value"]["schedule"]}
+    end
+    resultsByLine.to_json
+
   end
 
 
