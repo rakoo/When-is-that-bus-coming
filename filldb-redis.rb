@@ -22,9 +22,11 @@ File.open("100.schedule").each do |line|
 
     REDIS.sadd "#{name}:LINES", "100"
 
+    REDIS.hmset "LINE:100:DESC", 
   elsif state == :schedule
     REDIS.sadd "LINE:100", line
     REDIS.sadd "LINES", "100"
+
   end
 
 end
