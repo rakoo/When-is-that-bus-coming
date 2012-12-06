@@ -32,12 +32,14 @@ class WTBC < Sinatra::Base
   end
 
   get '/stations' do
-    STATIONS.map do |station|
-      "#{station[:name]}\n\t#{station[:lat]}\t#{station[:lon]}\n\t------\n"
-    end
+    content_type :json
+
+    STATIONS.to_json
   end
 
   get '/closest' do
+    content_type :json
+
     lat, lon = params[:lat], params[:lon]
     return 404 unless (lat and lon)
 
@@ -47,18 +49,20 @@ class WTBC < Sinatra::Base
     return 500 if lat == 0 and lon == 0 # TODO : what if the user is here ?
     return 500 if lat < -90 or lat > 90 or lon < -180 or lon > 180
 
-    closest_station lat, lon
+    closest_station(lat, lon).to_json
   end
 
   get '/nextbus' do
+    content_type :json
+
     station_name = params[:stationName]
     resultsByLine = {}
     COUCH.view('extract/schedulesByStation', {:key => station_name})["rows"].each do |row|
       resultsByLine[row["value"]["line"]] ||= []
       resultsByLine[row["value"]["line"]] << {:terminus => row["value"]["terminus"], :schedule => row["value"]["schedule"]}
     end
-    resultsByLine.to_json
 
+    resultsByLine.to_json
   end
 
 
