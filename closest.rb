@@ -27,10 +27,6 @@ class WTBC < Sinatra::Base
     'Hello world!'
   end
 
-  get '/reload' do
-    load_stations
-  end
-
   get '/stations' do
     content_type :json
 
@@ -55,7 +51,7 @@ class WTBC < Sinatra::Base
   get '/nextbus' do
     content_type :json
 
-    station_name = params[:stationName]
+    station_name = params[:station_name]
     resultsByLine = {}
     COUCH.view('extract/schedulesByStation', {:key => station_name})["rows"].each do |row|
       resultsByLine[row["value"]["line"]] ||= []
@@ -79,7 +75,7 @@ class WTBC < Sinatra::Base
       end
     end
 
-    closest[:name]
+    closest
   end
 
   run! if app_file == $0
