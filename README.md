@@ -36,7 +36,7 @@ returns the closest station to the somelat,somelon position.
 
 Format of a station is the same as before.
 
-## GET '/nextbus?station=<station_name>'
+## GET '/nextbus?station_name=station_name'
 
 returns the schedules for that station, indexed by transportation
 identification (bus line number, ...).
@@ -59,7 +59,8 @@ Output :
 # RUN
 
 1. Launch couchdb
-2. Insert data into couchdb with `filldb-couchdb.rb`
+2. Insert data into couchdb with `ruby filldb-couchdb.rb
+   http://user:pass@localhost:5984/wtbc /path/to/data`
 3. (If first run) push the couchapp : `erica push "http://user:pass@localhost:5984/wtbc"`
 3. Launch server : `ruby closest.rb --url "http://localhost:5984/wtbc`
 4. Enjoy !
