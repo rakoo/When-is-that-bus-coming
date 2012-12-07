@@ -29,8 +29,8 @@ returns all the stations, like
 
 returns the closest station to the somelat,somelon position. 
 
-* If either of these input is missing, returns 500. 
-* If either is 0, returns 500 (yeah, it's not correct. working on it.). 
+* If either of these input is missing, returns 404.
+* If both are 0, returns 500 (yeah, it's not correct. working on it.).
 * If somelat is outside [-90, 90], returns 500
 * If somelon is outside [-180, 180], returns 500
 
