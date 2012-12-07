@@ -70,3 +70,15 @@ Output :
 * sinatra
 * couchrest
 * trollop
+
+# LICENSE
+
+All this work is released under the CC0 License. In short, all the code
+has been dedicated to the maximum possible extent to the public domain.
+
+For more info, see COPYING or https://creativecommons.org/publicdomain/zero/1.0/
+
+The data (living under data/) is taken from multiple sources, including
+:
+
+* http://www.ceparou06.fr/
