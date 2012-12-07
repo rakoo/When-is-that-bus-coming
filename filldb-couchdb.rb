@@ -35,20 +35,11 @@ File.open(FILENAME).each do |line|
 end
 
 # ... and feed them to couch
-line = File.basename(FILENAME).split(".").first
-stations_docs = STATIONS.map do |station|
-  station.merge({
-    :type => :station,
-    :lines => [line]
-  })
-end
-COUCH.bulk_save(stations_docs, {:all_or_nothing => true})
 
 schedule_doc = {
   :type => :schedule,
-  :line => line,
-  :stations => STATIONS.map {|station| station[:name]},
+  :line => File.basename(FILENAME).split(".").first,
+  :stations => STATIONS,
   :schedules => SCHEDULES
 }
 COUCH.save_doc schedule_doc
-
