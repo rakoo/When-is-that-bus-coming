@@ -43,6 +43,19 @@ identification (bus line number, ...).
 Ideally, there should be some magic for calculating only the next one
 based on the query date, or some other field in the query.
 
+Output :
+
+```javascript
+{
+  "100":[
+    {
+      "terminus":"GARE ROUTIERE VALBONNE SOPHIA ANTIPOLIS",
+      "schedule":"08:13"
+    }
+  ]
+}
+```
+
 # RUN
 
 1. Launch couchdb
