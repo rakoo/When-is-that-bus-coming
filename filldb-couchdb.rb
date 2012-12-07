@@ -3,6 +3,7 @@
 require 'couchrest'
 require 'trollop'
 
+abort("No couchdb url; quitting.") unless ARGV[0]
 COUCH = CouchRest.database ARGV[0]
 STATIONS = []
 SCHEDULES = []
