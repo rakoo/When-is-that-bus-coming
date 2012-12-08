@@ -3,6 +3,7 @@ require 'sinatra/base'
 require 'couchrest'
 require 'trollop'
 require 'json'
+require 'cgi'
 
 STATIONS = []
 
@@ -23,8 +24,8 @@ COUCH = CouchRest.database opts[:url]
 load_stations
 
 class WTBC < Sinatra::Base
-  get '/' do
-    'Hello world!'
+  get '/ui' do
+    File.read('ui.html')
   end
 
   get '/stations' do
@@ -51,7 +52,7 @@ class WTBC < Sinatra::Base
   get '/nextbus' do
     content_type :json
 
-    station_name = params[:station_name]
+    station_name = CGI.unescape(params[:station_name])
     resultsByLine = {}
     COUCH.view('extract/schedulesByStation', {:key => station_name})["rows"].each do |row|
       resultsByLine[row["value"]["line"]] ||= []

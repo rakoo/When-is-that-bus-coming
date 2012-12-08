@@ -1,0 +1,105 @@
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.4/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.4/leaflet.js"></script>
+<style type="text/css" media="screen">
+  #map {
+    height: 100%;
+    width: 80%;
+    float: left;
+  }
+
+  #panel {
+    height: 100%;
+    width: 20%;
+    float: right;
+  }
+
+  .linkToSchedule {
+    color: rgb(0, 120, 168);
+    text-decoration:underline;
+  }
+
+</style>
+
+<html>
+  <div id="map"></div>
+  <div id="panel"></div>
+</html>
+
+<script type="text/javascript" charset="utf-8">
+  var map = L.map('map').setView([43.59, 7.09], 13);
+
+  L.tileLayer('http://{s}.tile.openstreetmaps.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+    maxZoom: 18
+  }).addTo(map);
+
+  var marker = L.marker([43.58, 7.12]).addTo(map);
+  marker.bindPopup("Here !");
+
+  var ajaxRequest = new XMLHttpRequest();
+
+  function askForStations() {
+    ajaxRequest.onreadystatechange = gotStations;
+    ajaxRequest.open('GET', 'stations', true);
+    ajaxRequest.send(null);
+  }
+
+  function gotStations() {
+    if (ajaxRequest.readyState == 4) {
+      if (ajaxRequest.status == 200) {
+        stationList = JSON.parse(ajaxRequest.responseText);
+        for (stationIndex = 0; stationIndex < stationList.length; stationIndex++){
+          var station = stationList[stationIndex];
+          if (station.lat == 0 || station.lon == 0) {
+            continue;
+          }
+          var stationLatLon = new L.LatLng(station.lat, station.lon, true);
+          var stationMark = new L.marker(stationLatLon);
+          stationMark.data  = station;
+          var stationMsg ="<h3>" + station.name + "</h3>" + "<a href=\"#" + station.name + "\" onclick=\"return getStationSchedules(event)\">Get schedules for this station</a>";
+          stationMark.bindPopup(stationMsg);
+
+          map.addLayer(stationMark)
+        }
+      }
+    }
+
+  }
+
+  function getStationSchedules(event) {
+    var url = event.target.href;
+    var station = url.substring(url.indexOf('#')+1); 
+    fillPanel(station)
+  }
+
+  var panelAjaxRequest = new XMLHttpRequest();
+
+  function fillPanel(stationName) {
+    panelAjaxRequest.onreadystatechange = gotSchedule;
+    panelAjaxRequest.open('GET', 'nextbus?station_name=' + stationName, true)
+    panelAjaxRequest.send(null)
+  }
+
+  function gotSchedule() {
+    if (panelAjaxRequest.readyState == 4) {
+      if (panelAjaxRequest.status == 200) {
+
+        var panel = document.getElementById('panel');
+        var stationInfo = JSON.parse(panelAjaxRequest.responseText);
+        panel.textContent = JSON.stringify(stationInfo, null, '\t');
+        console.log(panel.textContent);
+      }
+    }
+  }
+
+
+
+  askForStations();
+  
+  if (document.href.indexOf('#') != -1) {
+    var url = document.href
+    var station = url.substring(url.indexOf('#')+1);
+    fillPanel(station)
+  }
+
+</script>
