@@ -25,7 +25,7 @@ load_stations
 
 class WTBC < Sinatra::Base
   get '/ui' do
-    File.read('ui.html')
+    File.read('html/ui.html')
   end
 
   get '/stations' do
