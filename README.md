@@ -82,3 +82,4 @@ The data (living under data/) is taken from multiple sources, including
 :
 
 * http://www.ceparou06.fr/
+* [OpenStreetMaps](http://www.openstreetmap.org/) : © OpenStreetMaps contributors. See full licence info [here](http://www.openstreetmap.org/copyright)
