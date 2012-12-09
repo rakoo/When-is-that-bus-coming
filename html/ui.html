@@ -96,8 +96,8 @@
 
   askForStations();
   
-  if (document.href.indexOf('#') != -1) {
-    var url = document.href
+  if (document.URL.indexOf('#') != -1) {
+    var url = document.URL
     var station = url.substring(url.indexOf('#')+1);
     fillPanel(station)
   }
